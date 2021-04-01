@@ -9,7 +9,6 @@ endif()
 
 # Options
 option(LOVR_USE_STEAM_AUDIO "Enable the Steam Audio spatializer (be sure to also set LOVR_STEAM_AUDIO_PATH)" OFF)
-option(LOVR_USE_OCULUS_AUDIO "Enable the Oculus Audio spatializer (be sure to also set LOVR_OCULUS_AUDIO_PATH)" OFF)
 
 option(LOVR_BUILD_EXE "Build an executable (or an apk on Android)" ON)
 option(LOVR_BUILD_SHARED "Build a shared library (takes precedence over LOVR_BUILD_EXE)" OFF)
@@ -29,38 +28,9 @@ if(LOVR_USE_STEAM_AUDIO)
   add_library(Phonon SHARED IMPORTED)
 
   # Apple case
-  # Next line is where it all goes wrong
-  set_target_properties(Phonon PROPERTIES IMPORTED_LOCATION "${LOVR_STEAM_AUDIO_PATH}/lib/OSX/libphonon.dylib"
-                                          BUILD_RPATH "${LOVR_STEAM_AUDIO_PATH}/lib/OSX")
+  set_target_properties(Phonon PROPERTIES IMPORTED_LOCATION "${LOVR_STEAM_AUDIO_PATH}/lib/OSX/libphonon.dylib")
 
   set(LOVR_PHONON Phonon)
-endif()
-
-# Oculus Audio
-if(LOVR_USE_OCULUS_AUDIO)
-  if(NOT LOVR_OCULUS_AUDIO_PATH)
-    message(FATAL_ERROR "LOVR_USE_OCULUS_AUDIO requires the LOVR_OCULUS_AUDIO_PATH to be set to the location of the Oculus Spatializer Native (AudioSDK) folder")
-  endif()
-
-  include_directories("${LOVR_OCULUS_AUDIO_PATH}/Include")
-
-  add_library(OculusAudio SHARED IMPORTED)
-
-  # Apple case
-  # Oculus Audio ships with an intel .framework, but (as of 25.0.0) it is broken. We can convert it to a working dylib with install_name_tool in a custom target:
-  SET(OCULUS_AUDIO_MAC_LIB_DIR "${CMAKE_CURRENT_BINARY_DIR}/ovraudio")
-  SET(OCULUS_AUDIO_MAC_LIB_FILE "${OCULUS_AUDIO_MAC_LIB_DIR}/ovraudio64.dylib")
-  file(MAKE_DIRECTORY "${OCULUS_AUDIO_MAC_LIB_DIR}")
-  add_custom_command(OUTPUT "${OCULUS_AUDIO_MAC_LIB_FILE}"
-                 COMMAND ${CMAKE_COMMAND} -E copy "${LOVR_OCULUS_AUDIO_PATH}/Lib/mac64/OVRAudio64.framework/Versions/A/ovraudio64" "${OCULUS_AUDIO_MAC_LIB_FILE}"
-                 COMMAND install_name_tool -id @rpath/ovraudio64.dylib "${OCULUS_AUDIO_MAC_LIB_FILE}"
-                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-  add_custom_target(OculusAudioFixed DEPENDS "${OCULUS_AUDIO_MAC_LIB_FILE}")
-  add_dependencies(OculusAudio OculusAudioFixed)
-  set_target_properties(OculusAudio PROPERTIES IMPORTED_LOCATION "${OCULUS_AUDIO_MAC_LIB_FILE}"
-                                               BUILD_RPATH "${OCULUS_AUDIO_MAC_LIB_DIR}")
-
-  set(LOVR_OCULUS_AUDIO OculusAudio)
 endif()
 
 # LÖVR
@@ -79,10 +49,7 @@ endif()
 
 set_target_properties(lovr PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(lovr PROPERTIES C_STANDARD 99)
-target_link_libraries(lovr
-  ${LOVR_PHONON}
-  ${LOVR_OCULUS_AUDIO}
-)
+target_link_libraries(lovr ${LOVR_PHONON})
 
 # Apple platform
 if(LOVR_BUILD_BUNDLE)
