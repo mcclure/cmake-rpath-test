@@ -8,7 +8,6 @@ if (NOT APPLE)
 endif()
 
 # Options
-option(LOVR_USE_STEAM_AUDIO "Enable the Steam Audio spatializer (be sure to also set LOVR_STEAM_AUDIO_PATH)" OFF)
 option(LOVR_USE_OCULUS_AUDIO "Enable the Oculus Audio spatializer (be sure to also set LOVR_OCULUS_AUDIO_PATH)" OFF)
 
 option(LOVR_BUILD_EXE "Build an executable (or an apk on Android)" ON)
@@ -16,25 +15,6 @@ option(LOVR_BUILD_SHARED "Build a shared library (takes precedence over LOVR_BUI
 option(LOVR_BUILD_BUNDLE "On macOS, build a .app bundle instead of a raw program" OFF)
 
 # Setup
-
-# Steam Audio (aka Phonon)
-if(LOVR_USE_STEAM_AUDIO)
-  if(NOT LOVR_STEAM_AUDIO_PATH)
-    message(FATAL_ERROR "LOVR_USE_STEAM_AUDIO requires the LOVR_STEAM_AUDIO_PATH to be set to the location of the Steam Audio folder")
-  endif()
-  if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    message(FATAL_ERROR "LOVR_USE_STEAM_AUDIO is not currently available on 32 bit builds")
-  endif()
-  include_directories("${LOVR_STEAM_AUDIO_PATH}/include")
-  add_library(Phonon SHARED IMPORTED)
-
-  # Apple case
-  # Next line is where it all goes wrong
-  set_target_properties(Phonon PROPERTIES IMPORTED_LOCATION "${LOVR_STEAM_AUDIO_PATH}/lib/OSX/libphonon.dylib"
-                                          BUILD_RPATH "${LOVR_STEAM_AUDIO_PATH}/lib/OSX")
-
-  set(LOVR_PHONON Phonon)
-endif()
 
 # Oculus Audio
 if(LOVR_USE_OCULUS_AUDIO)
