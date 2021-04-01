@@ -80,6 +80,7 @@ endif()
 set_target_properties(lovr PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(lovr PROPERTIES C_STANDARD 99)
 target_link_libraries(lovr
+  ${LOVR_PHONON}
   ${LOVR_OCULUS_AUDIO}
 )
 
