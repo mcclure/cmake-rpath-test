@@ -10,13 +10,14 @@ endif()
 # Options
 option(LOVR_USE_OCULUS_AUDIO "Enable the Oculus Audio spatializer (be sure to also set LOVR_OCULUS_AUDIO_PATH)" OFF)
 
+# Build options not strictly relevant for cmake example
 option(LOVR_BUILD_EXE "Build an executable (or an apk on Android)" ON)
 option(LOVR_BUILD_SHARED "Build a shared library (takes precedence over LOVR_BUILD_EXE)" OFF)
 option(LOVR_BUILD_BUNDLE "On macOS, build a .app bundle instead of a raw program" OFF)
 
 # Setup
 
-# Oculus Audio
+# Oculus Audio -- This is the important part for purposes of the cmake example
 if(LOVR_USE_OCULUS_AUDIO)
   if(NOT LOVR_OCULUS_AUDIO_PATH)
     message(FATAL_ERROR "LOVR_USE_OCULUS_AUDIO requires the LOVR_OCULUS_AUDIO_PATH to be set to the location of the Oculus Spatializer Native (AudioSDK) folder")
@@ -37,8 +38,7 @@ if(LOVR_USE_OCULUS_AUDIO)
                  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
   add_custom_target(OculusAudioFixed DEPENDS "${OCULUS_AUDIO_MAC_LIB_FILE}")
   add_dependencies(OculusAudio OculusAudioFixed)
-  set_target_properties(OculusAudio PROPERTIES IMPORTED_LOCATION "${OCULUS_AUDIO_MAC_LIB_FILE}"
-                                               BUILD_RPATH "${OCULUS_AUDIO_MAC_LIB_DIR}")
+  set_target_properties(OculusAudio PROPERTIES IMPORTED_LOCATION "${OCULUS_AUDIO_MAC_LIB_FILE}")
 
   set(LOVR_OCULUS_AUDIO OculusAudio)
 endif()
@@ -51,7 +51,7 @@ set(LOVR_SRC
 
 if(LOVR_BUILD_SHARED)
   add_library(lovr SHARED ${LOVR_SRC})
-elseif(LOVR_BUILD_EXE)
+elseif(LOVR_BUILD_EXE) # Default branch
   add_executable(lovr ${LOVR_SRC})
 else()
   return()
@@ -60,11 +60,10 @@ endif()
 set_target_properties(lovr PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(lovr PROPERTIES C_STANDARD 99)
 target_link_libraries(lovr
-  ${LOVR_PHONON}
   ${LOVR_OCULUS_AUDIO}
 )
 
-# Apple platform
+# Apple platform -- This last part is only relevant if LOVR_BUILD_BUNDLE is set.
 if(LOVR_BUILD_BUNDLE)
   function(move_lib)
     if(TARGET ${ARGV0})
