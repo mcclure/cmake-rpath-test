@@ -49,7 +49,7 @@ endif()
 
 set_target_properties(lovr PROPERTIES C_VISIBILITY_PRESET hidden)
 set_target_properties(lovr PROPERTIES C_STANDARD 99)
-target_link_libraries(lovr ${LOVR_PHONON})
+#target_link_libraries(lovr ${LOVR_PHONON})
 
 # Apple platform
 if(LOVR_BUILD_BUNDLE)
