@@ -38,7 +38,8 @@ if(LOVR_USE_OCULUS_AUDIO)
                  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
   add_custom_target(OculusAudioFixed DEPENDS "${OCULUS_AUDIO_MAC_LIB_FILE}")
   add_dependencies(OculusAudio OculusAudioFixed)
-  set_target_properties(OculusAudio PROPERTIES IMPORTED_LOCATION "${OCULUS_AUDIO_MAC_LIB_FILE}")
+  set_target_properties(OculusAudio PROPERTIES IMPORTED_LOCATION "${OCULUS_AUDIO_MAC_LIB_FILE}"
+                                               IMPORTED_SONAME "@rpath/ovraudio64.dylib")
 
   set(LOVR_OCULUS_AUDIO OculusAudio)
 endif()
